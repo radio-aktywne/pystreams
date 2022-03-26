@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pystreams"
-version = "0.1.0"
+version = "0.1.1"
 description = "python streaming helpers 🐍"
 readme = "README.md"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
