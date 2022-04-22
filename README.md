@@ -4,8 +4,8 @@
 
 python streaming helpers 🐍
 
-[![Running tests](https://github.com/radio-aktywne/pystreams/actions/workflows/test.yml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/test.yml)
-[![Deploying docs](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yml)
+[![Tests](https://github.com/radio-aktywne/pystreams/actions/workflows/test-multiplatform.yml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/test-multiplatform.yml)
+[![Docs](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yml)
 
 </div>
 
@@ -152,8 +152,8 @@ changes in the `poetry.lock` file.
 When you push changes to remote, different GitHub Actions run to ensure project
 consistency. There are defined workflows for:
 
-- testing on different platforms
 - deploying docs to GitHub Pages
+- testing on different platforms
 - drafting release notes
 
 For more info see the files in `.github/workflows` directory and `Actions` tab
