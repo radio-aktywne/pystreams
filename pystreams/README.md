@@ -4,8 +4,9 @@
 
 python streaming helpers 🐍
 
-[![Tests](https://github.com/radio-aktywne/pystreams/actions/workflows/test-multiplatform.yml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/test-multiplatform.yml)
-[![Docs](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yml)
+[![Lint](https://github.com/radio-aktywne/pystreams/actions/workflows/lint.yaml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/lint.yaml)
+[![Tests](https://github.com/radio-aktywne/pystreams/actions/workflows/test-multiplatform.yaml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/test-multiplatform.yaml)
+[![Docs](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yaml/badge.svg)](https://github.com/radio-aktywne/pystreams/actions/workflows/docs.yaml)
 
 </div>
 
