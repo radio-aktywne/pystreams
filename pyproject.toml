@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "pystreams"
+version = "0.2.0"
+description = "Streaming utilities for Python 🐍"
+authors = ["radio-aktywne <it@radioaktywne.pl>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+ffmpeg-generator = "^1.0"
+numpy = "^1.22"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7"
+pytest-asyncio = "^0.21"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+# See: https://python-poetry.org/docs/pyproject/#poetry-and-pep-517
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
