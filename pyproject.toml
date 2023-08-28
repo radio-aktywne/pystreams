@@ -6,8 +6,6 @@ authors = ["radio-aktywne <it@radioaktywne.pl>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-ffmpeg-generator = "^1.0"
-numpy = "^1.22"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7"
