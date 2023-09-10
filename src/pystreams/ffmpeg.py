@@ -13,8 +13,14 @@ def _build_args_from_options(options: dict[str, Any] | None) -> list[str]:
             pass
         elif value is True or value is None:
             args = args + [f"-{key}"]
+        elif isinstance(value, str):
+            args = args + [f"-{key}", value]
         else:
-            args = args + [f"-{key}", str(value)]
+            try:
+                for v in value:
+                    args = args + [f"-{key}", str(v)]
+            except TypeError:
+                args = args + [f"-{key}", str(value)]
 
     return args
 
@@ -48,8 +54,14 @@ def _build_tee_target_args_from_options(options: dict[str, Any] | None) -> list[
             pass
         elif value is True or value is None:
             args = args + [key]
-        else:
+        elif isinstance(value, str):
             args = args + [f"{key}={value}"]
+        else:
+            try:
+                for v in value:
+                    args = args + [f"{key}={v}"]
+            except TypeError:
+                args = args + [f"{key}={value}"]
 
     return [arg.replace(":", "\\:") for arg in args]
 
