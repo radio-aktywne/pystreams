@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pystreams"
-version = "0.2.1"
+version = "0.3.2"
 description = "Streaming utilities for Python 🐍"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
 
