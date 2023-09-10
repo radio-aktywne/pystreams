@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import IO, Any, AnyStr
+from typing import Any
 
 from pystreams.process import ProcessBasedStreamMetadata
 
@@ -89,9 +89,6 @@ class FFmpegStreamMetadata(ProcessBasedStreamMetadata):
         output: FFmpegNode | Sequence[FFmpegNode],
         options: dict[str, Any] | None = None,
         env: dict[str, str] | None = None,
-        stdin: IO[AnyStr] | None = None,
-        stdout: IO[AnyStr] | None = None,
-        stderr: IO[AnyStr] | None = None,
     ) -> None:
         input = input if isinstance(input, Sequence) else [input]
         output = output if isinstance(output, Sequence) else [output]
@@ -107,4 +104,4 @@ class FFmpegStreamMetadata(ProcessBasedStreamMetadata):
             args = args + _build_args_from_options(node.options)
             args = args + [node.target]
 
-        super().__init__(args, env, stdin, stdout, stderr)
+        super().__init__(args, env)

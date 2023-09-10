@@ -1,4 +1,6 @@
+import os
 from asyncio import create_subprocess_exec
+from asyncio.subprocess import DEVNULL
 from asyncio.subprocess import Process as AsyncioProcess
 from collections.abc import Sequence
 from typing import IO, AnyStr
@@ -13,15 +15,9 @@ class ProcessBasedStreamMetadata:
         self,
         args: Sequence[str],
         env: dict[str, str] | None = None,
-        stdin: IO[AnyStr] | None = None,
-        stdout: IO[AnyStr] | None = None,
-        stderr: IO[AnyStr] | None = None,
     ) -> None:
         self._args = args
         self._env = env
-        self._stdin = stdin
-        self._stdout = stdout
-        self._stderr = stderr
 
     @property
     def args(self) -> Sequence[str]:
@@ -34,24 +30,6 @@ class ProcessBasedStreamMetadata:
         """The environment variables for the process."""
 
         return self._env
-
-    @property
-    def stdin(self) -> IO[AnyStr] | None:
-        """The standard input for the process."""
-
-        return self._stdin
-
-    @property
-    def stdout(self) -> IO[AnyStr] | None:
-        """The standard output for the process."""
-
-        return self._stdout
-
-    @property
-    def stderr(self) -> IO[AnyStr] | None:
-        """The standard error for the process."""
-
-        return self._stderr
 
 
 class ProcessBasedStream(Stream):
@@ -73,13 +51,21 @@ class ProcessBasedStream(Stream):
 class ProcessBasedStreamFactory(StreamFactory[ProcessBasedStreamMetadata]):
     """A factory for creating process-based streams."""
 
-    async def create(self, metadata: ProcessBasedStreamMetadata) -> ProcessBasedStream:
+    async def create(
+        self,
+        metadata: ProcessBasedStreamMetadata,
+        stdin: IO[AnyStr] | None = DEVNULL,
+        stdout: IO[AnyStr] | None = DEVNULL,
+        stderr: IO[AnyStr] | None = DEVNULL,
+    ) -> ProcessBasedStream:
+        env = os.environ.copy() | (metadata.env or {})
+
         process = await create_subprocess_exec(
             *metadata.args,
-            env=metadata.env,
-            stdin=metadata.stdin,
-            stdout=metadata.stdout,
-            stderr=metadata.stderr,
+            env=env,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr,
         )
 
         return ProcessBasedStream(process)
