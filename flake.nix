@@ -42,6 +42,8 @@
         trunk = pkgs.trunk-io;
         poetry = pkgs.poetry;
         copier = pkgs.copier;
+        ffmpeg = pkgs.ffmpeg;
+        s5cmd = pkgs.s5cmd;
       in {
         # Override pkgs argument
         _module.args.pkgs = import inputs.nixpkgs {
@@ -72,6 +74,8 @@
               trunk
               poetry
               copier
+              ffmpeg
+              s5cmd
             ];
 
             shellHook = ''
@@ -121,6 +125,8 @@
               python
               task
               poetry
+              ffmpeg
+              s5cmd
             ];
 
             shellHook = ''
