@@ -1,4 +1,4 @@
-<h1 align="center">pystreams</h1>
+<h1 align="center">pystreams package</h1>
 
 <div align="center">
 

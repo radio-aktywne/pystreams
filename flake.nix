@@ -39,6 +39,7 @@
         python = pkgs.python311;
         nil = pkgs.nil;
         task = pkgs.go-task;
+        coreutils = pkgs.coreutils;
         trunk = pkgs.trunk-io;
         poetry = pkgs.poetry;
         copier = pkgs.copier;
@@ -71,6 +72,7 @@
               python
               nil
               task
+              coreutils
               trunk
               poetry
               copier
@@ -90,6 +92,7 @@
             packages = [
               python
               task
+              coreutils
               poetry
             ];
 
@@ -104,6 +107,7 @@
 
             packages = [
               task
+              coreutils
               copier
             ];
           };
@@ -114,6 +118,7 @@
             packages = [
               node
               task
+              coreutils
               trunk
             ];
           };
@@ -124,6 +129,7 @@
             packages = [
               python
               task
+              coreutils
               poetry
               ffmpeg
               s5cmd
@@ -141,6 +147,7 @@
             packages = [
               node
               task
+              coreutils
             ];
           };
         };
