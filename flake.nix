@@ -80,9 +80,12 @@
               s5cmd
             ];
 
+            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
+
             shellHook = ''
               task install
-              source .venv/bin/activate
+              . .venv/bin/activate
+              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
@@ -96,9 +99,12 @@
               poetry
             ];
 
+            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
+
             shellHook = ''
               task install
-              source .venv/bin/activate
+              . .venv/bin/activate
+              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
@@ -135,9 +141,12 @@
               s5cmd
             ];
 
+            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
+
             shellHook = ''
               task install
-              source .venv/bin/activate
+              . .venv/bin/activate
+              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
