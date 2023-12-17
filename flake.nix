@@ -36,7 +36,7 @@
         ...
       }: let
         node = pkgs.nodejs;
-        python = pkgs.python311;
+        python = pkgs.python312;
         nil = pkgs.nil;
         task = pkgs.go-task;
         coreutils = pkgs.coreutils;
@@ -83,6 +83,7 @@
             PYTHON_SITE_PACKAGES = "${python.sitePackages}";
 
             shellHook = ''
+              export TMPDIR=/tmp
               task install
               . .venv/bin/activate
               export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
@@ -102,6 +103,7 @@
             PYTHON_SITE_PACKAGES = "${python.sitePackages}";
 
             shellHook = ''
+              export TMPDIR=/tmp
               task install
               . .venv/bin/activate
               export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
@@ -116,6 +118,10 @@
               coreutils
               copier
             ];
+
+            shellHook = ''
+              export TMPDIR=/tmp
+            '';
           };
 
           lint = pkgs.mkShell {
@@ -127,6 +133,10 @@
               coreutils
               trunk
             ];
+
+            shellHook = ''
+              export TMPDIR=/tmp
+            '';
           };
 
           test = pkgs.mkShell {
@@ -144,6 +154,7 @@
             PYTHON_SITE_PACKAGES = "${python.sitePackages}";
 
             shellHook = ''
+              export TMPDIR=/tmp
               task install
               . .venv/bin/activate
               export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
@@ -158,6 +169,10 @@
               task
               coreutils
             ];
+
+            shellHook = ''
+              export TMPDIR=/tmp
+            '';
           };
         };
       };
