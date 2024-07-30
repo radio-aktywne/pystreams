@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from asyncio.subprocess import DEVNULL
-from typing import IO, AnyStr, Generic, TypeVar
-
-StreamMetadataType = TypeVar("StreamMetadataType")
+from typing import IO, AnyStr
 
 
 class Stream(ABC):
@@ -27,13 +25,13 @@ class Stream(ABC):
         pass
 
 
-class StreamFactory(ABC, Generic[StreamMetadataType]):
+class StreamFactory[T](ABC):
     """A factory for creating streams."""
 
     @abstractmethod
     async def create(
         self,
-        metadata: StreamMetadataType,
+        metadata: T,
         stdin: IO[AnyStr] | None = DEVNULL,
         stdout: IO[AnyStr] | None = DEVNULL,
         stderr: IO[AnyStr] | None = DEVNULL,
