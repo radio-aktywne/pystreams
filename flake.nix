@@ -44,7 +44,7 @@
         poetry = pkgs.poetry;
         copier = pkgs.copier;
         ffmpeg = pkgs.ffmpeg;
-        s5cmd = pkgs.s5cmd;
+        gstreamer = pkgs.gst_all_1.gstreamer;
       in {
         # Override pkgs argument
         _module.args.pkgs = import inputs.nixpkgs {
@@ -77,7 +77,7 @@
               poetry
               copier
               ffmpeg
-              s5cmd
+              gstreamer
             ];
 
             shellHook = ''
@@ -138,7 +138,7 @@
               coreutils
               poetry
               ffmpeg
-              s5cmd
+              gstreamer
             ];
 
             shellHook = ''
