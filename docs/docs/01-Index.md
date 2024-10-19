@@ -3,7 +3,7 @@ slug: /
 title: Index
 ---
 
-# pystreams package
+# pystreams
 
 Streaming utilities for Python 🐍
 
