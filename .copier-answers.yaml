@@ -1,13 +1,13 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 0.7.0
+_commit: 0.8.0
 _src_path: gh:radio-aktywne/template-package-python
 accountname: radio-aktywne
 description: Streaming utilities for Python 🐍
 docs: true
-docsurl: https://radio-aktywne.github.io/package-pystreams
+docsurl: https://radio-aktywne.github.io/pystreams
 email: it@radioaktywne.pl
 importname: pystreams
 packagename: pystreams
 releases: true
-reponame: package-pystreams
-repourl: https://github.com/radio-aktywne/package-pystreams
+reponame: pystreams
+repourl: https://github.com/radio-aktywne/pystreams
