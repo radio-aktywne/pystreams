@@ -3,9 +3,9 @@ from asyncio import create_subprocess_exec
 from asyncio.subprocess import DEVNULL
 from asyncio.subprocess import Process as AsyncioProcess
 from collections.abc import Sequence
-from typing import IO, AnyStr
+from typing import IO, override
 
-from pystreams.stream import Stream, StreamFactory
+from pystreams.base import Stream, StreamFactory
 
 
 class ProcessBasedStreamMetadata:
@@ -22,41 +22,43 @@ class ProcessBasedStreamMetadata:
     @property
     def args(self) -> Sequence[str]:
         """The arguments to the process."""
-
         return self._args
 
     @property
     def env(self) -> dict[str, str] | None:
         """The environment variables for the process."""
-
         return self._env
 
 
 class ProcessBasedStream(Stream):
-    """A stream based on a process."""
+    """Stream based on a process."""
 
     def __init__(self, process: AsyncioProcess) -> None:
         self._process = process
 
+    @override
     async def terminate(self) -> None:
         self._process.terminate()
 
+    @override
     async def kill(self) -> None:
         self._process.kill()
 
-    async def wait(self) -> int:
-        return await self._process.wait()
+    @override
+    async def wait(self) -> None:
+        await self._process.wait()
 
 
 class ProcessBasedStreamFactory(StreamFactory[ProcessBasedStreamMetadata]):
-    """A factory for creating process-based streams."""
+    """Factory for ProcessBasedStream."""
 
+    @override
     async def create(
         self,
         metadata: ProcessBasedStreamMetadata,
-        stdin: IO[AnyStr] | None = DEVNULL,
-        stdout: IO[AnyStr] | None = DEVNULL,
-        stderr: IO[AnyStr] | None = DEVNULL,
+        stdin: IO | int | None = DEVNULL,
+        stdout: IO | int | None = DEVNULL,
+        stderr: IO | int | None = DEVNULL,
     ) -> ProcessBasedStream:
         env = os.environ.copy() | (metadata.env or {})
 

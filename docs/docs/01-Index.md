@@ -5,8 +5,9 @@ title: Index
 
 # pystreams
 
-Streaming utilities for Python 🐍
+Streaming utilities package for Python 🐍
 
 ## 💡 About
 
-This package provides a set of utilities for working with multimedia streams in Python.
+`pystreams` is a [`Python`](https://www.python.org) package
+that provides a set of utilities for working with multimedia streams.

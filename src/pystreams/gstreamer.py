@@ -12,23 +12,21 @@ def _build_args_from_global_options(options: dict[str, Any] | None) -> list[str]
         if value is False:
             pass
         elif value is True or value is None:
-            args = args + [f"--{key}"]
+            args = [*args, f"--{key}"]
         elif isinstance(value, str):
-            args = args + [f"--{key}", value]
+            args = [*args, f"--{key}", value]
         else:
             try:
                 for v in value:
-                    args = args + [f"--{key}", str(v)]
+                    args = [*args, f"--{key}", str(v)]
             except TypeError:
-                args = args + [f"--{key}", str(value)]
+                args = [*args, f"--{key}", str(value)]
 
     return args
 
 
 def _map_value(value: Any) -> str:
-    if isinstance(value, bool):
-        return str(value).lower()
-    return str(value)
+    return str(value).lower() if isinstance(value, bool) else str(value)
 
 
 def _build_args_from_node_properties(properties: dict[str, Any] | None) -> list[str]:
@@ -37,7 +35,7 @@ def _build_args_from_node_properties(properties: dict[str, Any] | None) -> list[
 
 
 class GStreamerNode:
-    """A node in an GStreamer stream."""
+    """Node in a GStreamer stream."""
 
     def __init__(self, element: str, properties: dict[str, Any] | None = None) -> None:
         self._element = element
@@ -46,18 +44,16 @@ class GStreamerNode:
     @property
     def element(self) -> str:
         """The element of the node."""
-
         return self._element
 
     @property
     def properties(self) -> dict[str, Any] | None:
         """The properties of the node."""
-
         return self._properties
 
 
 class GStreamerStreamMetadata(ProcessBasedStreamMetadata):
-    """Metadata for an GStreamer stream."""
+    """Metadata for a GStreamer stream."""
 
     def __init__(
         self,
@@ -68,14 +64,16 @@ class GStreamerStreamMetadata(ProcessBasedStreamMetadata):
     ) -> None:
         nodes = nodes if isinstance(nodes, Sequence) else [nodes]
 
-        args = [executable]
-        args = args + _build_args_from_global_options(options)
+        args = [executable, *_build_args_from_global_options(options)]
 
         for i, node in enumerate(nodes):
-            args = args + [node.element]
-            args = args + _build_args_from_node_properties(node.properties)
+            args = [
+                *args,
+                node.element,
+                *_build_args_from_node_properties(node.properties),
+            ]
 
             if i < len(nodes) - 1:
-                args = args + ["!"]
+                args = [*args, "!"]
 
         super().__init__(args, env)
