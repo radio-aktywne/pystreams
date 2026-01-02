@@ -3,10 +3,10 @@ from asyncio import create_subprocess_exec
 from asyncio.subprocess import DEVNULL
 from asyncio.subprocess import Process as AsyncioProcess
 from collections.abc import Sequence
-from typing import IO, AnyStr
+from typing import IO, override
 
+from pystreams.base import Stream, StreamFactory
 from pystreams.process import ProcessBasedStreamMetadata
-from pystreams.stream import Stream, StreamFactory
 
 
 class PipedStreamMetadata:
@@ -21,38 +21,41 @@ class PipedStreamMetadata:
     @property
     def streams(self) -> Sequence[ProcessBasedStreamMetadata]:
         """The streams in the pipe."""
-
         return self._streams
 
 
 class PipedStream(Stream):
-    """A stream based on a pipe of multiple process-based streams."""
+    """Stream based on a pipe of multiple process-based streams."""
 
     def __init__(self, processes: Sequence[AsyncioProcess]) -> None:
         self._processes = processes
 
+    @override
     async def terminate(self) -> None:
         for process in reversed(self._processes):
             process.terminate()
 
+    @override
     async def kill(self) -> None:
         for process in reversed(self._processes):
             process.kill()
 
+    @override
     async def wait(self) -> None:
         for process in reversed(self._processes):
             await process.wait()
 
 
 class PipedStreamFactory(StreamFactory[PipedStreamMetadata]):
-    """A factory for creating piped streams."""
+    """Factory for PipedStream."""
 
+    @override
     async def create(
         self,
         metadata: PipedStreamMetadata,
-        stdin: IO[AnyStr] | None = DEVNULL,
-        stdout: IO[AnyStr] | None = DEVNULL,
-        stderr: IO[AnyStr] | None = DEVNULL,
+        stdin: IO | int | None = DEVNULL,
+        stdout: IO | int | None = DEVNULL,
+        stderr: IO | int | None = DEVNULL,
     ) -> PipedStream:
         processes = []
         pipes = []
@@ -72,8 +75,8 @@ class PipedStreamFactory(StreamFactory[PipedStreamMetadata]):
                     stderr=stderr,
                 )
 
-                processes = processes + [process]
-                pipes = pipes + [pipe]
+                processes = [*processes, process]
+                pipes = [*pipes, pipe]
                 current_stdin = pipe[0]
 
             last_stream = metadata.streams[-1]
@@ -88,7 +91,7 @@ class PipedStreamFactory(StreamFactory[PipedStreamMetadata]):
                 stderr=stderr,
             )
 
-            processes = processes + [last_process]
+            processes = [*processes, last_process]
 
             return PipedStream(processes)
         finally:
