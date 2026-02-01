@@ -44,7 +44,6 @@
         trunk = pkgs.trunk-io;
         uv = pkgs.uv;
         cacert = pkgs.cacert;
-        copier = pkgs.python313.withPackages (ps: [ps.copier]);
         ffmpeg = pkgs.ffmpeg;
         gstreamer = pkgs.gst_all_1.gstreamer;
       in {
@@ -79,7 +78,6 @@
               trunk
               uv
               cacert
-              copier
               ffmpeg
               gstreamer
             ];
