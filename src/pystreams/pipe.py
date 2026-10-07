@@ -1,7 +1,6 @@
 import os
 from asyncio import create_subprocess_exec
-from asyncio.subprocess import DEVNULL
-from asyncio.subprocess import Process as AsyncioProcess
+from asyncio.subprocess import DEVNULL, Process as AsyncioProcess
 from collections.abc import Sequence
 from typing import IO, override
 
