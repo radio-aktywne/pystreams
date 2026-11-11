@@ -35,6 +35,11 @@ class ProcessBasedStream(Stream):
     def __init__(self, process: AsyncioProcess) -> None:
         self._process = process
 
+    @property
+    def process(self) -> AsyncioProcess:
+        """The underlying process."""
+        return self._process
+
     @override
     async def terminate(self) -> None:
         self._process.terminate()
