@@ -29,6 +29,11 @@ class PipedStream(Stream):
     def __init__(self, processes: Sequence[AsyncioProcess]) -> None:
         self._processes = processes
 
+    @property
+    def processes(self) -> Sequence[AsyncioProcess]:
+        """The underlying processes."""
+        return self._processes
+
     @override
     async def terminate(self) -> None:
         for process in reversed(self._processes):
@@ -65,6 +70,7 @@ class PipedStreamFactory(StreamFactory[PipedStreamMetadata]):
                 env = os.environ.copy() | (stream.env or {})
 
                 pipe = os.pipe()
+                pipes = [*pipes, pipe]
 
                 process = await create_subprocess_exec(
                     *stream.args,
@@ -75,7 +81,6 @@ class PipedStreamFactory(StreamFactory[PipedStreamMetadata]):
                 )
 
                 processes = [*processes, process]
-                pipes = [*pipes, pipe]
                 current_stdin = pipe[0]
 
             last_stream = metadata.streams[-1]
