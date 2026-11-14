@@ -8,11 +8,11 @@ class Stream(ABC):
 
     @abstractmethod
     async def terminate(self) -> None:
-        """Terminate the stream gracefully."""
+        """Request graceful termination of the stream."""
 
     @abstractmethod
     async def kill(self) -> None:
-        """Kill the stream forcefully."""
+        """Request forceful termination of the stream."""
 
     @abstractmethod
     async def wait(self) -> None:

@@ -1,10 +1,21 @@
 import os
+import signal
 from asyncio import create_subprocess_exec
 from asyncio.subprocess import DEVNULL, Process as AsyncioProcess
 from collections.abc import Sequence
+from contextlib import suppress
+from dataclasses import dataclass
 from typing import IO, override
 
 from pystreams.base import Stream, StreamFactory
+
+
+@dataclass(frozen=True)
+class ProcessSignals:
+    """Signals used to request process termination and killing."""
+
+    terminate: int = signal.SIGTERM
+    kill: int = getattr(signal, "SIGKILL", signal.SIGTERM)
 
 
 class ProcessBasedStreamMetadata:
@@ -14,9 +25,11 @@ class ProcessBasedStreamMetadata:
         self,
         args: Sequence[str],
         env: dict[str, str] | None = None,
+        signals: ProcessSignals | None = None,
     ) -> None:
         self._args = args
         self._env = env
+        self._signals = signals if signals is not None else ProcessSignals()
 
     @property
     def args(self) -> Sequence[str]:
@@ -28,12 +41,22 @@ class ProcessBasedStreamMetadata:
         """The environment variables for the process."""
         return self._env
 
+    @property
+    def signals(self) -> ProcessSignals:
+        """The signals used to stop the process."""
+        return self._signals
+
 
 class ProcessBasedStream(Stream):
     """Stream based on a process."""
 
-    def __init__(self, process: AsyncioProcess) -> None:
+    def __init__(
+        self,
+        process: AsyncioProcess,
+        signals: ProcessSignals,
+    ) -> None:
         self._process = process
+        self._signals = signals
 
     @property
     def process(self) -> AsyncioProcess:
@@ -42,11 +65,13 @@ class ProcessBasedStream(Stream):
 
     @override
     async def terminate(self) -> None:
-        self._process.terminate()
+        with suppress(ProcessLookupError):
+            self._process.send_signal(self._signals.terminate)
 
     @override
     async def kill(self) -> None:
-        self._process.kill()
+        with suppress(ProcessLookupError):
+            self._process.send_signal(self._signals.kill)
 
     @override
     async def wait(self) -> None:
@@ -74,4 +99,4 @@ class ProcessBasedStreamFactory(StreamFactory[ProcessBasedStreamMetadata]):
             stderr=stderr,
         )
 
-        return ProcessBasedStream(process)
+        return ProcessBasedStream(process, metadata.signals)

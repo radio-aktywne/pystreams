@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Any
 
-from pystreams.process import ProcessBasedStreamMetadata
+from pystreams.process import ProcessBasedStreamMetadata, ProcessSignals
 from pystreams.utils import CommandOptionsBuilder, Escaper
 
 
@@ -51,6 +51,7 @@ class FFmpegStreamMetadata(ProcessBasedStreamMetadata):
         output: FFmpegNode | Sequence[FFmpegNode],
         options: dict[str, Any] | None = None,
         env: dict[str, str] | None = None,
+        signals: ProcessSignals | None = None,
     ) -> None:
         input_ = input if isinstance(input, Sequence) else [input]
         output_ = output if isinstance(output, Sequence) else [output]
@@ -64,4 +65,4 @@ class FFmpegStreamMetadata(ProcessBasedStreamMetadata):
         for node in output_:
             args = [*args, *builder.build(node.options), node.target]
 
-        super().__init__(args, env)
+        super().__init__(args, env, signals)
