@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Any
 
-from pystreams.process import ProcessBasedStreamMetadata
+from pystreams.process import ProcessBasedStreamMetadata, ProcessSignals
 from pystreams.utils import CommandOptionsBuilder
 
 
@@ -32,6 +32,7 @@ class GStreamerStreamMetadata(ProcessBasedStreamMetadata):
         executable: str = "gst-launch-1.0",
         options: dict[str, Any] | None = None,
         env: dict[str, str] | None = None,
+        signals: ProcessSignals | None = None,
     ) -> None:
         nodes = nodes if isinstance(nodes, Sequence) else [nodes]
 
@@ -45,4 +46,4 @@ class GStreamerStreamMetadata(ProcessBasedStreamMetadata):
             if i < len(nodes) - 1:
                 args = [*args, "!"]
 
-        super().__init__(args, env)
+        super().__init__(args, env, signals)

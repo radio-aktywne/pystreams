@@ -1,11 +1,15 @@
 import os
-from asyncio import create_subprocess_exec
 from asyncio.subprocess import DEVNULL, Process as AsyncioProcess
 from collections.abc import Sequence
+from contextlib import ExitStack
 from typing import IO, override
 
 from pystreams.base import Stream, StreamFactory
-from pystreams.process import ProcessBasedStreamMetadata
+from pystreams.process import (
+    ProcessBasedStream,
+    ProcessBasedStreamFactory,
+    ProcessBasedStreamMetadata,
+)
 
 
 class PipedStreamMetadata:
@@ -26,28 +30,28 @@ class PipedStreamMetadata:
 class PipedStream(Stream):
     """Stream based on a pipe of multiple process-based streams."""
 
-    def __init__(self, processes: Sequence[AsyncioProcess]) -> None:
-        self._processes = processes
+    def __init__(self, streams: Sequence[ProcessBasedStream]) -> None:
+        self._streams = streams
 
     @property
     def processes(self) -> Sequence[AsyncioProcess]:
         """The underlying processes."""
-        return self._processes
+        return [stream.process for stream in self._streams]
 
     @override
     async def terminate(self) -> None:
-        for process in reversed(self._processes):
-            process.terminate()
+        for stream in reversed(self._streams):
+            await stream.terminate()
 
     @override
     async def kill(self) -> None:
-        for process in reversed(self._processes):
-            process.kill()
+        for stream in reversed(self._streams):
+            await stream.kill()
 
     @override
     async def wait(self) -> None:
-        for process in reversed(self._processes):
-            await process.wait()
+        for stream in reversed(self._streams):
+            await stream.wait()
 
 
 class PipedStreamFactory(StreamFactory[PipedStreamMetadata]):
@@ -61,44 +65,32 @@ class PipedStreamFactory(StreamFactory[PipedStreamMetadata]):
         stdout: IO | int | None = DEVNULL,
         stderr: IO | int | None = DEVNULL,
     ) -> PipedStream:
-        processes = []
-        pipes = []
-        current_stdin = stdin
+        factory = ProcessBasedStreamFactory()
+        streams: list[ProcessBasedStream] = []
 
         try:
-            for stream in metadata.streams[:-1]:
-                env = os.environ.copy() | (stream.env or {})
+            with ExitStack() as stack:
+                for i, item in enumerate(metadata.streams):
+                    read, write = None, stdout
 
-                pipe = os.pipe()
-                pipes = [*pipes, pipe]
+                    if i < len(metadata.streams) - 1:
+                        read, write = os.pipe()
+                        stack.callback(os.close, read)
+                        stack.callback(os.close, write)
 
-                process = await create_subprocess_exec(
-                    *stream.args,
-                    env=env,
-                    stdin=current_stdin,
-                    stdout=pipe[1],
-                    stderr=stderr,
-                )
+                    stream = await factory.create(
+                        item, stdin=stdin, stdout=write, stderr=stderr
+                    )
+                    streams = [*streams, stream]
 
-                processes = [*processes, process]
-                current_stdin = pipe[0]
+                    stdin = read
+        except BaseException:
+            for stream in reversed(streams):
+                await stream.kill()
 
-            last_stream = metadata.streams[-1]
+            for stream in streams:
+                await stream.wait()
 
-            env = os.environ.copy() | (last_stream.env or {})
+            raise
 
-            last_process = await create_subprocess_exec(
-                *last_stream.args,
-                env=env,
-                stdin=current_stdin,
-                stdout=stdout,
-                stderr=stderr,
-            )
-
-            processes = [*processes, last_process]
-
-            return PipedStream(processes)
-        finally:
-            for pipe in pipes:
-                os.close(pipe[0])
-                os.close(pipe[1])
+        return PipedStream(streams)
