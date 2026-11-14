@@ -2,36 +2,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from pystreams.process import ProcessBasedStreamMetadata
-
-
-def _build_args_from_global_options(options: dict[str, Any] | None) -> list[str]:
-    options = options or {}
-    args = []
-
-    for key, value in options.items():
-        if value is False:
-            pass
-        elif value is True or value is None:
-            args = [*args, f"--{key}"]
-        elif isinstance(value, str):
-            args = [*args, f"--{key}", value]
-        else:
-            try:
-                for v in value:
-                    args = [*args, f"--{key}", str(v)]
-            except TypeError:
-                args = [*args, f"--{key}", str(value)]
-
-    return args
-
-
-def _map_value(value: Any) -> str:
-    return str(value).lower() if isinstance(value, bool) else str(value)
-
-
-def _build_args_from_node_properties(properties: dict[str, Any] | None) -> list[str]:
-    properties = properties or {}
-    return [f"{key}={_map_value(value)}" for key, value in properties.items()]
+from pystreams.utils import CommandOptionsBuilder
 
 
 class GStreamerNode:
@@ -64,14 +35,12 @@ class GStreamerStreamMetadata(ProcessBasedStreamMetadata):
     ) -> None:
         nodes = nodes if isinstance(nodes, Sequence) else [nodes]
 
-        args = [executable, *_build_args_from_global_options(options)]
+        builder = CommandOptionsBuilder(prefix="--")
+        args = [executable, *builder.build(options)]
 
+        builder = CommandOptionsBuilder(flags=False, repeat=False, separator="=")
         for i, node in enumerate(nodes):
-            args = [
-                *args,
-                node.element,
-                *_build_args_from_node_properties(node.properties),
-            ]
+            args = [*args, node.element, *builder.build(node.properties)]
 
             if i < len(nodes) - 1:
                 args = [*args, "!"]

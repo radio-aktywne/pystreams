@@ -2,27 +2,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from pystreams.process import ProcessBasedStreamMetadata
-
-
-def _build_args_from_options(options: dict[str, Any] | None) -> list[str]:
-    options = options or {}
-    args = []
-
-    for key, value in options.items():
-        if value is False:
-            pass
-        elif value is True or value is None:
-            args = [*args, f"-{key}"]
-        elif isinstance(value, str):
-            args = [*args, f"-{key}", value]
-        else:
-            try:
-                for v in value:
-                    args = [*args, f"-{key}", str(v)]
-            except TypeError:
-                args = [*args, f"-{key}", str(value)]
-
-    return args
+from pystreams.utils import CommandOptionsBuilder, Escaper
 
 
 class FFmpegNode:
@@ -43,37 +23,6 @@ class FFmpegNode:
         return self._options
 
 
-def _build_tee_target_args_from_options(options: dict[str, Any] | None) -> list[str]:
-    options = options or {}
-    args = []
-
-    for key, value in options.items():
-        if value is False:
-            pass
-        elif value is True or value is None:
-            args = [*args, key]
-        elif isinstance(value, str):
-            args = [*args, f"{key}={value}"]
-        else:
-            try:
-                for v in value:
-                    args = [*args, f"{key}={v}"]
-            except TypeError:
-                args = [*args, f"{key}={value}"]
-
-    return [arg.replace(":", "\\:") for arg in args]
-
-
-def _build_tee_target(nodes: Sequence[FFmpegNode]) -> str:
-    targets = []
-
-    for node in nodes:
-        args = _build_tee_target_args_from_options(node.options)
-        targets.append(f"[{':'.join(args)}]{node.target}")
-
-    return "|".join(targets)
-
-
 class FFmpegTeeNode(FFmpegNode):
     """Tee node in an FFmpeg stream."""
 
@@ -82,12 +31,15 @@ class FFmpegTeeNode(FFmpegNode):
         nodes: Sequence[FFmpegNode],
         options: dict[str, Any] | None = None,
     ) -> None:
-        options = options or {}
+        builder = CommandOptionsBuilder(escapes="\\' \n\t\r:]", separator="=")
+        escaper = Escaper("\\' \n\t\r|")
+        targets = []
 
-        target = _build_tee_target(nodes)
-        options = options | {"f": "tee"}
+        for node in nodes:
+            args = ":".join(builder.build(node.options))
+            targets = [*targets, escaper.escape(f"[{args}]{node.target}")]
 
-        super().__init__(target, options)
+        super().__init__("|".join(targets), (options or {}) | {"f": "tee"})
 
 
 class FFmpegStreamMetadata(ProcessBasedStreamMetadata):
@@ -103,12 +55,13 @@ class FFmpegStreamMetadata(ProcessBasedStreamMetadata):
         input_ = input if isinstance(input, Sequence) else [input]
         output_ = output if isinstance(output, Sequence) else [output]
 
-        args = ["ffmpeg", *_build_args_from_options(options)]
+        builder = CommandOptionsBuilder(prefix="-")
+        args = ["ffmpeg", *builder.build(options)]
 
         for node in input_:
-            args = [*args, *_build_args_from_options(node.options), "-i", node.target]
+            args = [*args, *builder.build(node.options), "-i", node.target]
 
         for node in output_:
-            args = [*args, *_build_args_from_options(node.options), node.target]
+            args = [*args, *builder.build(node.options), node.target]
 
         super().__init__(args, env)
